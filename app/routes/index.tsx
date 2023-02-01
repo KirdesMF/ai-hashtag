@@ -77,6 +77,10 @@ export default function Index() {
             <button type="submit" name="_action" value="save">
               Save
             </button>
+
+            <button type="submit" name="_action" value="reset">
+              Reset
+            </button>
           </Form>
 
           <button type="button">Copy</button>

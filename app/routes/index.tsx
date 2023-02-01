@@ -79,7 +79,7 @@ export default function Index() {
             </button>
 
             <button type="submit" name="_action" value="reset">
-              Reset
+              Reset prompt
             </button>
           </Form>
 

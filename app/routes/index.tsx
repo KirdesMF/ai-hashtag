@@ -63,7 +63,7 @@ export default function Index() {
       </p>
 
       <Form method="post">
-        <textarea name="description" className="border" />
+        <textarea name="description" className="border bg-green-200 " />
         <button type="submit" name="_action" value="generate">
           Generate
         </button>

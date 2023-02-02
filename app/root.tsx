@@ -20,7 +20,7 @@ export function links() {
     { rel: "stylesheet", href: styles },
     {
       rel: "preload",
-      href: "/fonts/Mona-Sans.woff2",
+      href: "/fonts/Manrope[wght].woff2",
       as: "font",
       type: "font/woff2",
       crossOrigin: "anonymous",

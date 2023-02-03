@@ -1,54 +1,25 @@
-import {
-  json,
-  type LoaderArgs,
-  redirect,
-  type ActionArgs,
-} from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
-import { getHashTags } from "~/utils/openAI";
-import { commitSession, getSession } from "~/utils/session.server";
-
-export async function loader({ request }: LoaderArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const hashtags = (session.get("current-hashtags") as string) || "";
-
-  return json(hashtags);
-}
+import { json, type LoaderArgs, type ActionArgs } from "@remix-run/node";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { getHashTags } from "~/utils/openAI.server";
 
 export async function action({ request }: ActionArgs) {
   // get form data
   const body = await request.formData();
-  const { _action, ...values } = Object.fromEntries(body);
+  const description = body.get("description") as string;
 
-  // get session
-  const session = await getSession(request.headers.get("Cookie"));
+  // fetch from openAI
+  const res = await getHashTags(description as string);
 
-  if (_action === "generate") {
-    // fetch from openAI
-    const res = await getHashTags(values.description as string);
-
-    // save to session
-    session.set("current-hashtags", res.choices[0].text);
-
-    // return json and set cookie
-    return json(res, {
-      headers: { "Set-Cookie": await commitSession(session) },
-    });
-  }
-
-  if (_action === "save") {
-    // save to session
-    session.set("current-hashtags", values.hashtags);
-
-    //  redirect to hashtags dashboard and set cookie
-    return redirect("/hashtags", {
-      headers: { "Set-Cookie": await commitSession(session) },
-    });
-  }
+  // return json and set cookie
+  return json(res.choices[0].text);
 }
 
 export default function Index() {
-  const data = useLoaderData<typeof loader>();
+  const data = useActionData<typeof action>();
+  const [hashtags, setHashtags] = useState(data);
+
+  useEffect(() => setHashtags(data), [data]);
 
   return (
     <main>
@@ -64,25 +35,14 @@ export default function Index() {
 
       <Form method="post">
         <textarea name="description" className="border bg-green-200 " />
-        <button type="submit" name="_action" value="generate">
-          Generate
-        </button>
+        <button type="submit">Generate</button>
       </Form>
 
       {data && (
         <div>
-          <p>{data}</p>
-          <Form method="post">
-            <input type="hidden" name="hashtags" value={data} />
-            <button type="submit" name="_action" value="save">
-              Save
-            </button>
+          <p>{hashtags}</p>
 
-            <button type="submit" name="_action" value="reset">
-              Reset prompt
-            </button>
-          </Form>
-
+          <button type="button">Reset prompt</button>
           <button type="button">Copy</button>
         </div>
       )}

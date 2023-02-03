@@ -28,6 +28,11 @@ type OpenAIResponse = {
   };
 };
 
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+if (!OPENAI_API_KEY) {
+  throw new Error("OPENAI_API_KEY must be set");
+}
+
 export async function getHashTags(description: string) {
   const payload: OpenAIPayload = {
     prompt: description,
